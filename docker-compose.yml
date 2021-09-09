@@ -1,0 +1,21 @@
+version: '3.9'
+services:
+  cron:
+    container_name: cron
+    build:
+      context: ./cron
+      dockerfile: Dockerfile
+    volumes:
+      - './cron:/usr/src/app'
+  ofelia:
+    depends_on:
+      - cron
+    restart: always
+    labels:
+      ofelia.job-run.datecron.container: "cron"
+      ofelia.job-run.datecron.schedule: "@every 5s"
+      ofelia.job-run.datecron.command: "python3 /usr/src/app/cmd.py"
+    image: mcuadros/ofelia:latest
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
